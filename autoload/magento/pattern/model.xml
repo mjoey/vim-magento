@@ -1,0 +1,14 @@
+        <models>
+            <{lmodulename}>
+                <class>{modulename}_Model</class>
+                <resourceModel>{lmodulename}_resource</resourceModel>
+            </{lmodulename}>
+            <{lmodulename}_resource>
+                <class>{modulename}_Model_Resource</class>
+                <entities>
+                    <{lentity}>
+                       <table>{tablename}</table>
+                    </{lentity}>
+                </entities>
+            </{lmodulename}_resource>
+        </models>

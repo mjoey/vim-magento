@@ -1,0 +1,11 @@
+        <resources>
+            <{lmodulename}_setup>
+                <setup>
+                    <module>{modulename}</module>
+                    <class>Mage_Core_Model_Resource_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </{lmodulename}_setup>
+        </resources>

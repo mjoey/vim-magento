@@ -1,0 +1,5 @@
+<{name}>
+    <rewrite>
+        <{classname}>Mynamespace_Mymodule_{classtype}_{newclass}</{classname}>
+    </rewrite>
+</{name}> 

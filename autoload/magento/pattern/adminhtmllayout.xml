@@ -1,0 +1,7 @@
+        <layout>
+            <updates>
+                <{lmodulename} module="{modulename}">
+                    <file>{lmodulename}.xml</file>
+                </soon_privatesales>
+            </updates>
+        </layout>

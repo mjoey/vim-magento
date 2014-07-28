@@ -1,0 +1,55 @@
+<config>
+    <menu>
+        <main_menu_item translate="title" module="{lmodulename}" >
+            <title>{name}</title>
+            <sort_order>10</sort_order>
+            <children>
+                <sub_menu_item translate="title" module="{lmodulename}">
+                    <title>Sub Menu Item</title>
+                    <sort_order>10</sort_order>
+                    <children>
+                        <sub_menu_link translate="title" module="{lmodulename}">
+                            <title>Sub menu link</title>
+                            <action>adminhtml/{lname}_{controllername}</action>
+                        </sub_menu_link>
+                    </children>
+                </sub_menu_item>
+            </children>
+        </main_menu_item>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <!--
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <{lmodulename} translate="title" module="{lmodulename}">
+                                        <title>Module Section</title>
+                                    </{lmodulename}>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    -->
+                    <main_menu_item translate="title" module="{lmodulename}">
+                        <title>{name}</title>
+                        <children>
+                            <sub_menu_item translate="title" module="{lmodulename}">
+                                <title>Sub Menu Item</title>
+                                <children>
+                                    <sub_menu_link translate="title" module="{lmodulename}">
+                                        <title>Sub menu link</title>
+                                    </sub_menu_link>
+                                </children>
+                            </sub_menu_item>
+                        </children>
+                    </main_menu_item>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>
+

@@ -1,0 +1,10 @@
+        <events>
+            <{event}>
+                <observers>
+                    <{lmodulename}_{observer}>
+                        <class>{lmodulename}/{observer}</class>
+                        <method>{method}</method>
+                    </{lmodulename}_{observer}>
+                </observers>
+            </{event}>
+        </events>

@@ -1,0 +1,3 @@
+                    <{lentity}>
+                       <table>{lmodulename}_{lentity}</table>
+                    </{lentity}>

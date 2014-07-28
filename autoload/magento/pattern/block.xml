@@ -1,0 +1,5 @@
+        <blocks>
+            <{lmodulename}>
+                <class>{modulename}_Block</class>
+            </{lmodulename}>
+        </blocks>

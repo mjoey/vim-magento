@@ -1,0 +1,26 @@
+<div class="content-header">
+    <h3 class="icon-head head-{lentity}"><?php echo $this->getHeader() ?></h3>
+    <p class="content-buttons form-buttons"><?php echo $this->getBackButtonHtml() ?>
+    <?php if($this->get{entity}Id()): ?>
+        <?php echo $this->getDeleteButtonHtml() ?>
+        <?php echo $this->getSaveAndEditButtonHtml() ?>
+        <?php endif; ?>
+        <?php echo $this->getSaveButtonHtml() ?>
+    </p>
+</div>
+
+<form action="<?php echo $this->getSaveUrl() ?>" method="post" id="{lentity}_edit_form" enctype="multipart/form-data">
+        <?php echo $this->getBlockHtml('formkey')?>
+        <div style="display:none"></div>
+</form>
+
+
+<script type="text/javascript">
+//<![CDATA[
+    var {lentity}Form = new varienForm('{lentity}_edit_form', '<?php echo $this->getValidationUrl() ?>');
+    function saveAndContinueEdit(url) {
+        
+       {lentity}Form.submit(url);
+    }
+//]]>
+</script>

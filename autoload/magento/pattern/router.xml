@@ -1,0 +1,9 @@
+        <routers>
+            <{routernode}>
+                <use>standard</use>
+                <args>
+                    <module>{modulename}</module>
+                    <frontName>{name}</frontName>
+                </args>
+            </{routernode}>
+        </routers>

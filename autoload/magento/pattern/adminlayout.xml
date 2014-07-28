@@ -1,0 +1,12 @@
+<layout version="0.1.0">
+    <adminhtml_{lname}_{lentity}_edit>
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="{lmodulename}/adminhtml_{lentity}_edit" name="{lentity}_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="adminhtml/{lentity}_switcher" name="{lentity}_switcher" before="-"></block>
+            <block type="{lmodulename}/adminhtml_{lentity}_edit_tabs" name="{lentity}_tabs"></block>
+        </reference>
+    </adminhtml_{lname}_{lentity}_edit>
+</layout>

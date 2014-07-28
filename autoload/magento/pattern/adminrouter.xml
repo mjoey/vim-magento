@@ -1,0 +1,9 @@
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <{routernode} after="Mage_Adminhtml">{modulename}_Adminhtml</{routernode}>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
