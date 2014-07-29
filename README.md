@@ -6,7 +6,21 @@ vim-magento 0.1.2 UNSTABLE and UNCOMPLETE
 
 Features
 ===========
-  - Module creation
+  - Basic module creation:
+```
+app
+├── code
+│   └── community
+│       └── Mypackage
+│           └── Myextension
+│               ├── etc
+│               │   └── config.xml
+│               └── Helper
+│                   └── Data.php
+└── etc
+    └── modules
+        └── Mypackage_Myextension.xml
+```
   - Front controller creation
   - Block creation
   - Automatic config.xml update
