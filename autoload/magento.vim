@@ -126,9 +126,34 @@ func! magento#CreateModule()
             call magento#deleteFirstLine()
             execute ":w"
 
-            "call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Model")
-            "call system("mkdir -p ".g:path.g:separator.g:name.g:separator."sql")
         endif
     endif
 endfunc
 
+func! magento#CreateController()
+    let controllerName = magento#ucfirst(input('Controller name: '))
+    
+    if controllerName==""
+       let controllerName = "Index"
+    endif
+
+    if !isdirectory(g:path.g:separator.g:name.g:separator."controllers")
+        call system("mkdir -p ".g:path.g:separator.g:name.g:separator."controllers")
+    endif
+        call system("touch ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php")
+        execute ":split ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php"
+        execute ":r ".s:install_dir."/magento/pattern/Controller.php"
+        execute ":%s/{package}_{modulename}_{controllername}/".g:package."_".g:name."_".controllerName."/g"
+        call magento#deleteFirstLine()
+	call magento#CComment('php')
+        call magento#deleteFirstLine()
+        execute ":w"
+        execute ":split ".g:configXml
+        call magento#AddNode(g:configXml,"config","frontend","",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend","routers","",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers",g:lpackage."_".g:lname,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"use","standard",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"args","",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","module",g:package."_".g:name,g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","frontName",g:lname,g:configXml)
+endfunc
