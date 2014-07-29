@@ -2,13 +2,18 @@
 " Author:        Michael Joseph
 " Website:       michael-joseph.me
 " Contact:	 vim@michael-joseph.me
-" Version:       0.1.0
+" Version:       0.1.2
 
 let s:install_dir = expand("<sfile>:p:h")
 
 func! magento#ucfirst(word)
     let ucfirst = tolower(a:word)
     return substitute(ucfirst, '^.', '\U\0', '')
+endfunc
+
+func! magento#ucBeforeUnderscore(string)
+    let ucfirst = magento#ucfirst(a:string)
+    return substitute(ucfirst, '_.', '\U\0', 'g')
 endfunc
 
 func! magento#deleteFirstLine()
@@ -156,4 +161,35 @@ func! magento#CreateController()
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"args","",g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","module",g:package."_".g:name,g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","frontName",g:lname,g:configXml)
+endfunc
+
+func! magento#CreateBlock()
+    let block = magento#ucBeforeUnderscore(input('Block Name: '))
+    if !isdirectory(g:path.g:separator.g:name.g:separator."Block")
+        call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block")
+    endif
+    "create subfolder
+    let blockList = split(block,'_')
+    "create model sub folder
+    if(len(blockList)>1)
+       call remove(blockList,len(blockList)-1)
+        if !isdirectory(g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
+            call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
+        endif
+    endif
+    call system("touch ".g:path.g:separator.g:name.g:separator."Block".g:separator.block.".php")
+    execute ":split ".g:path.g:separator.g:name.g:separator."Block".g:separator.join(split(block,'_'),g:separator).".php"
+    execute ":r ".s:install_dir."/magento/pattern/Block.php"
+    execute ":%s/{block}/".block."/g"
+    call magento#deleteFirstLine()
+    call magento#CComment("php")
+    call magento#deleteFirstLine()
+    execute ":w"
+    execute ":split ".g:configXml
+    if match(string(readfile(g:configXml)),"blocks") < 0
+        call magento#AddNode(g:configXml,"config/global","blocks","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks",g:lpackage."_".g:lname,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Block",g:configXml)
+        execute ":w"
+    endif
 endfunc

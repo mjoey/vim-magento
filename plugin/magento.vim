@@ -2,7 +2,7 @@
 " Author:        Michael Joseph
 " Website:       michael-joseph.me
 " Contact:	 vim@michael-joseph.me
-" Version:       0.1.0
+" Version:       0.1.2
 
 "Magento Plugin for Vim
 command -nargs=0 Magento call MagentoMenu()
@@ -14,7 +14,7 @@ func! MagentoMenu()
     if exists('g:package') && exists('g:name') 
         echom "[Magento VIM] Choose your Action"
         echom "Choose your Action"
-        echom "b : create block (this feature is coming soon)"
+        echom "b : create block"
         echom "c : create controller"
         echom "e : create entity (this feature is coming soon)"
         echom "g : create grid (this feature is coming soon)"
@@ -24,9 +24,9 @@ func! MagentoMenu()
         if action == "s"
             call magento#CreateModule()
         endif
-"        if action == "b"
-"            call magento#CreateBlock()
-"        endif
+        if action == "b"
+            call magento#CreateBlock()
+        endif
 "        if action == "su"
 "            call magento#CreateSetup()
 "        endif
