@@ -14,25 +14,25 @@ func! MagentoMenu()
     if exists('g:package') && exists('g:name') 
         echom "[Magento VIM] Choose your Action"
         echom "Choose your Action"
-        echom "s : select new extension"
-        echom "b : create block"
-        echom "e : create entity"
-        echom "g : create grid"
+        echom "b : create block (this feature is coming soon)"
         echom "c : create controller"
-        echom "su: create setup"
+        echom "e : create entity (this feature is coming soon)"
+        echom "g : create grid (this feature is coming soon)"
+        echom "s : select/create extension"
+        echom "su: create setup (this feature is coming soon)"
         let action = input('Action: ')
         if action == "s"
             call magento#CreateModule()
         endif
-        if action == "b"
-            call magento#CreateBlock()
-        endif
-        if action == "su"
-            call magento#CreateSetup()
-        endif
-        if action == "e"
-            call magento#CreateEntity()
-        endif
+"        if action == "b"
+"            call magento#CreateBlock()
+"        endif
+"        if action == "su"
+"            call magento#CreateSetup()
+"        endif
+"        if action == "e"
+"            call magento#CreateEntity()
+"        endif
         if action == "c"
             call magento#CreateController()
         endif
