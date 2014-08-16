@@ -1,8 +1,8 @@
 " File:          magento.vim
 " Author:        Michael Joseph
 " Website:       michael-joseph.me
-" Contact:	 vim@michael-joseph.me
-" Version:       0.1.2
+" Contact:     vim@michael-joseph.me
+" Version:       0.1.3
 
 let s:install_dir = expand("<sfile>:p:h")
 
@@ -21,6 +21,9 @@ func! magento#deleteFirstLine()
     execute ":1:d"
 endfunc
 
+func! magento#escapeSlash(string)
+     return substitute(a:string,'/','\\/','g')
+endfunc
 func! magento#CComment(fileType)
     execute "/<?".a:fileType
     execute ":r ".s:install_dir."/magento/pattern/comment/".a:fileType.".tpl"
@@ -29,10 +32,11 @@ func! magento#CComment(fileType)
 endfunc
 
 func! magento#CReplace()
-        execute ":%s/{package}/".g:package."_".g:name."/g"
-        execute ":%s/{category}/".g:package."/g"
-        execute ":%s/{author}/".g:author."/g"
-        execute ":%s/{copyright}/".g:copyright."/g"
+    execute ":%s/{package}/".magento#escapeSlash(g:package)."_".g:name."/g"
+    execute ":%s/{category}/".magento#escapeSlash(g:package)."/g"
+    execute ":%s/{author}/".magento#escapeSlash(g:author)."/g"
+    execute ":%s/{copyright}/".magento#escapeSlash(g:copyright)."/g"
+    execute ":%s/{license}/".magento#escapeSlash(g:license)."/g"
 endfunc
 
 func! magento#AddNode(file,path,node,value,origfile)
@@ -44,6 +48,15 @@ func! magento#AddNode(file,path,node,value,origfile)
     execute ":wq"
 endfunc
 
+func! magento#ExistingNode(file,path)
+   let x=system("xmlstarlet sel -t -v 'count(".a:path.")' ". a:file)
+   if (x==0)
+       return 0
+   else
+       return 1
+   endif
+endfunc
+
 func! magento#CreateModule()
     if !exists('g:package') || !exists('g:name')
         echom "Wich module do you want to update or create ?"
@@ -51,7 +64,7 @@ func! magento#CreateModule()
         if has('win32')
             let g:separator = '\\'
         endif
-        
+
         "pool
         let poolFlag = 0
         while poolFlag==0
@@ -137,30 +150,40 @@ endfunc
 
 func! magento#CreateController()
     let controllerName = magento#ucfirst(input('Controller name: '))
-    
+
     if controllerName==""
-       let controllerName = "Index"
+        let controllerName = "Index"
     endif
 
     if !isdirectory(g:path.g:separator.g:name.g:separator."controllers")
         call system("mkdir -p ".g:path.g:separator.g:name.g:separator."controllers")
     endif
-        call system("touch ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php")
-        execute ":split ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php"
-        execute ":r ".s:install_dir."/magento/pattern/Controller.php"
-        execute ":%s/{package}_{modulename}_{controllername}/".g:package."_".g:name."_".controllerName."/g"
-        call magento#deleteFirstLine()
-	call magento#CComment('php')
-        call magento#deleteFirstLine()
-        execute ":w"
-        execute ":split ".g:configXml
+    call system("touch ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php")
+    execute ":split ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php"
+    execute ":r ".s:install_dir."/magento/pattern/Controller.php"
+    execute ":%s/{package}_{modulename}_{controllername}/".g:package."_".g:name."_".controllerName."/g"
+    call magento#deleteFirstLine()
+    call magento#CComment('php')
+    call magento#deleteFirstLine()
+    execute ":w"
+    execute ":split ".g:configXml
+
+    "verify if frontend node exists
+    let frontendNode = magento#ExistingNode(g:configXml,"config/frontend")
+    if frontendNode==0
         call magento#AddNode(g:configXml,"config","frontend","",g:configXml)
+    endif
+    let routersNode = magento#ExistingNode(g:configXml,"config/frontend/routers")
+
+    "verify if routers node exists
+    if routersNode==0
         call magento#AddNode(g:configXml,"config/frontend","routers","",g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers",g:lpackage."_".g:lname,"",g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"use","standard",g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"args","",g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","module",g:package."_".g:name,g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","frontName",g:lname,g:configXml)
+    endif
 endfunc
 
 func! magento#CreateBlock()
@@ -170,9 +193,9 @@ func! magento#CreateBlock()
     endif
     "create subfolder
     let blockList = split(block,'_')
-    "create model sub folder
+    "create block sub folder
     if(len(blockList)>1)
-       call remove(blockList,len(blockList)-1)
+        call remove(blockList,len(blockList)-1)
         if !isdirectory(g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
             call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
         endif
@@ -186,10 +209,14 @@ func! magento#CreateBlock()
     call magento#deleteFirstLine()
     execute ":w"
     execute ":split ".g:configXml
-    if match(string(readfile(g:configXml)),"blocks") < 0
+
+    "verify if blocks node exists
+    let blocksNode = magento#ExistingNode(g:configXml,"config/global/blocks")
+    if blocksNode==0
         call magento#AddNode(g:configXml,"config/global","blocks","",g:configXml)
         call magento#AddNode(g:configXml,"config/global/blocks",g:lpackage."_".g:lname,"",g:configXml)
         call magento#AddNode(g:configXml,"config/global/blocks/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Block",g:configXml)
         execute ":w"
     endif
+
 endfunc
