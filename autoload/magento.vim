@@ -1,8 +1,8 @@
-" File:          magento.vim
-" Author:        Michael Joseph
-" Website:       michael-joseph.me
-" Contact:     vim@michael-joseph.me
-" Version:       0.1.3
+" File    : magento.vim
+" Author  : Michael Joseph
+" Website : michael-joseph.me
+" Contact : vim@michael-joseph.me
+" Version : 0.1.3
 
 let s:install_dir = expand("<sfile>:p:h")
 
@@ -11,7 +11,7 @@ func! magento#ucfirst(word)
     return substitute(ucfirst, '^.', '\U\0', '')
 endfunc
 
-func! magento#ucBeforeUnderscore(string)
+func! magento#ucAfterUnderscore(string)
     let ucfirst = magento#ucfirst(a:string)
     return substitute(ucfirst, '_.', '\U\0', 'g')
 endfunc
@@ -24,6 +24,11 @@ endfunc
 func! magento#escapeSlash(string)
      return substitute(a:string,'/','\\/','g')
 endfunc
+
+func! magento#replaceSlashByUnderscore(string)
+     return substitute(a:string,'/','_','g')
+endfunc
+
 func! magento#CComment(fileType)
     execute "/<?".a:fileType
     execute ":r ".s:install_dir."/magento/pattern/comment/".a:fileType.".tpl"
@@ -57,6 +62,7 @@ func! magento#ExistingNode(file,path)
    endif
 endfunc
 
+"Create a module
 func! magento#CreateModule()
     if !exists('g:package') || !exists('g:name')
         echom "Wich module do you want to update or create ?"
@@ -143,11 +149,11 @@ func! magento#CreateModule()
             call magento#CComment("php")
             call magento#deleteFirstLine()
             execute ":w"
-
         endif
     endif
 endfunc
 
+"Create a frontend controller
 func! magento#CreateController()
     let controllerName = magento#ucfirst(input('Controller name: '))
 
@@ -184,10 +190,13 @@ func! magento#CreateController()
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","module",g:package."_".g:name,g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","frontName",g:lname,g:configXml)
     endif
+    execute ":w"
 endfunc
 
+"Create a block
 func! magento#CreateBlock()
-    let block = magento#ucBeforeUnderscore(input('Block Name: '))
+    let block = magento#replaceSlashByUnderscore(input('Block Name: '))
+    let block = magento#ucAfterUnderscore(block)
     if !isdirectory(g:path.g:separator.g:name.g:separator."Block")
         call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block")
     endif
@@ -216,7 +225,93 @@ func! magento#CreateBlock()
         call magento#AddNode(g:configXml,"config/global","blocks","",g:configXml)
         call magento#AddNode(g:configXml,"config/global/blocks",g:lpackage."_".g:lname,"",g:configXml)
         call magento#AddNode(g:configXml,"config/global/blocks/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Block",g:configXml)
-        execute ":w"
+    endif
+    execute ":w"
+endfunc
+
+"Create an entity
+func! magento#CreateEntity()
+    let entity = magento#replaceSlashByUnderscore(input('Entity Name: '))
+    let entity = magento#ucAfterUnderscore(entity)
+    let lentity = tolower(entity)
+    let table = tolower(input('Table Name: '))
+    let modelPath = g:path.g:separator.g:name.g:separator."Model"
+    "create model folder
+    if !isdirectory(modelPath)
+        call system("mkdir -p ".modelPath)
+    endif
+    let entityList = split(entity,'_')
+    "create model sub folder
+    if(len(entityList)>1)
+       call remove(entityList,len(entityList)-1)
+        echo entityList
+        if !isdirectory(modelPath.g:separator.join(entityList,g:separator))
+            call system("mkdir -p ".modelPath.g:separator.join(entityList,g:separator))
+        endif
     endif
 
+    "create resource folder
+    if !isdirectory(modelPath.g:separator."Resource")
+        call system("mkdir -p ".modelPath.g:separator."Resource")
+    endif
+
+    if !isdirectory(modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator))
+        call system("mkdir -p ".modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator))
+    endif
+
+    execute ":split ".modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator).g:separator."Collection.php"
+    execute ":".line("$")
+    execute ":r ".s:install_dir."/magento/pattern/ResourceCollection.php"
+    execute ":%s/{modulename}/".g:package."_".g:name."/g"
+    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    call magento#deleteFirstLine()
+    call magento#CComment("php")
+    call magento#deleteFirstLine()
+    execute ":w"
+    
+    execute ":split ".modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator).".php"
+    execute ":".line("$")
+    execute ":r ".s:install_dir."/magento/pattern/ResourceModel.php"
+    execute ":%s/{modulename}/".g:package."_".g:name."/g"
+    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    call magento#deleteFirstLine()
+    call magento#CComment("php")
+    call magento#deleteFirstLine()
+    execute ":w"
+
+    execute ":split ".modelPath.g:separator.join(split(entity,'_'),g:separator).".php"
+    execute ":".line("$")
+    execute ":r ".s:install_dir."/magento/pattern/Model.php"
+    execute ":%s/{modulename}/".g:package."_".g:name."/g"
+    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    call magento#deleteFirstLine()
+    call magento#CComment("php")
+    call magento#deleteFirstLine()
+    execute ":w"
+
+    execute ":split ".g:configXml
+    "verify if models node exists
+    let modelsNode = magento#ExistingNode(g:configXml,"config/global/models")
+    if modelsNode==0
+        call magento#AddNode(g:configXml,"config/global","models","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Model",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"resourceModel",g:lpackage."_".g:lname."_resource",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname."_resource","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource","class",g:package."_".g:name."_Model_Resource",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource","entities","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities",lentity,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities/".lentity,"table",table,g:configXml)
+        execute ":w"
+    else
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities",lentity,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities/".lentity,"table",table,g:configXml)
+        execute ":w"
+    endif
 endfunc

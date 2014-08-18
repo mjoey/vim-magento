@@ -22,8 +22,8 @@ func! MagentoMenu()
         echom "Choose your Action"
         echom "s : select/create extension"
         echom "b : create block"
+        echom "e : create entity"
         echom "c : create controller"
-        echom "e : create entity (this feature is coming soon)"
         echom "g : create grid (this feature is coming soon)"
         echom "su: create setup (this feature is coming soon)"
         let action = input('Action: ')
@@ -36,9 +36,9 @@ func! MagentoMenu()
 "        if action == "su"
 "            call magento#CreateSetup()
 "        endif
-"        if action == "e"
-"            call magento#CreateEntity()
-"        endif
+        if action == "e"
+            call magento#CreateEntity()
+        endif
         if action == "c"
             call magento#CreateController()
         endif
