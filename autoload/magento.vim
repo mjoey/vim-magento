@@ -244,7 +244,6 @@ func! magento#CreateEntity()
     "create model sub folder
     if(len(entityList)>1)
        call remove(entityList,len(entityList)-1)
-        echo entityList
         if !isdirectory(modelPath.g:separator.join(entityList,g:separator))
             call system("mkdir -p ".modelPath.g:separator.join(entityList,g:separator))
         endif
@@ -312,6 +311,91 @@ func! magento#CreateEntity()
     else
         call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities",lentity,"",g:configXml)
         call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities/".lentity,"table",table,g:configXml)
+        execute ":w"
+    endif
+endfunc
+
+"Create observer
+func! magento#CreateObserver()
+    "area
+    let areaFlag = 0
+    while areaFlag==0
+        let area = input('Area? global (g), frontend (f) or adminhtml (a): ')
+        if area == "g"
+            let area = "global"
+            let areaFlag = 1
+        elseif area == "f"
+            let area = "frontend"
+            let areaFlag = 1
+        elseif area == "a"
+            let area = "adminhtml"
+            let areaFlag = 1
+        endif
+    endwhile
+
+    "define event name
+    let event = ""
+    while event==""
+        let event = tolower(input('Event name: '))
+    endwhile
+
+    "define observer name
+    let observer = magento#replaceSlashByUnderscore(input('Observer name: '))
+    let observer = magento#ucAfterUnderscore(observer)
+    let observerList = split(observer,'_')
+    let modelPath = g:path.g:separator.g:name.g:separator."Model"
+
+    "define method name
+    let method = ""
+    while method==""
+        let method = input('Method Name: ')
+    endwhile
+
+    "create observer sub folder
+    if(len(observerList)>1)
+       call remove(observerList,len(entityList)-1)
+        if !isdirectory(modelPath.g:separator.join(observerList,g:separator))
+            call system("mkdir -p ".modelPath.g:separator.join(observerList,g:separator))
+        endif
+    endif
+
+    if observer==""
+        let observer = "observer"
+        call system("touch ".modelPath."Observer.php")
+    else
+        call system("touch ".modelPath.g:separator.join(split(observer,'_'),g:separator).".php")
+    endif
+
+    let observer = tolower(observer)
+    execute ":split ".g:path.g:separator.g:name.g:separator."etc".g:separator."config.xml"
+    "verify if models node exists
+    let modelsNode = magento#ExistingNode(g:configXml,"config/global/models")
+    if modelsNode==0
+        call magento#AddNode(g:configXml,"config/global","models","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Model",g:configXml)
+    endif
+    "verify if events node exists
+    let eventsNode = magento#ExistingNode(g:configXml,"config/".area."/events")
+    "verify if area node exists
+    let areaNode = magento#ExistingNode(g:configXml,"config/".area)
+    if eventsNode==0
+        if areaNode==0
+            call magento#AddNode(g:configXml,"config",area,"",g:configXml)
+        endif
+        call magento#AddNode(g:configXml,"config/".area,"events","",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events",event,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event,"observers","",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:lpackage."_".g:lname."_".observer,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"class",g:lpackage."_".g:lname."/".tolower(observer),g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"method",method,g:configXml)
+        execute ":w"
+    else
+        call magento#AddNode(g:configXml,"config/".area."/events",event,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event,"observers","",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:lpackage."_".g:lname."_".observer,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"class",g:lpackage."_".g:lname."/".tolower(observer),g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"method",method,g:configXml)
         execute ":w"
     endif
 endfunc

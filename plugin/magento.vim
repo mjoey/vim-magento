@@ -24,6 +24,7 @@ func! MagentoMenu()
         echom "b : create block"
         echom "e : create entity"
         echom "c : create controller"
+        echom "o : create observer"
         echom "g : create grid (this feature is coming soon)"
         echom "su: create setup (this feature is coming soon)"
         let action = input('Action: ')
@@ -41,6 +42,9 @@ func! MagentoMenu()
         endif
         if action == "c"
             call magento#CreateController()
+        endif
+        if action == "o"
+            call magento#CreateObserver()
         endif
     else
         call magento#CreateModule()
