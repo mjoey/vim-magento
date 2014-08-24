@@ -1,0 +1,138 @@
+*magento.txt*       For |Vim version 7.3|   Last change: 2014 August 24
+
+Author     : Michael Joseph <http://michael-joseph.me/>
+Repository : <https//github.com/mjoey/vim-magento>
+Version    : 0.9.0
+License    : GPL 3.0
+
+INTRODUCTION                                    
+========================================================================
+Vim-Magento is a Vim plugin that helps you build Magento modules.
+
+All actions begin with |Magento| command.
+
+SETUP
+========================================================================
+/!\ In order to work Vim-Magento needs XmlStarlet Command Line. 
+    Please install this before everything.
+    XmlStarlet installation:
+        
+        - Under Debian distribution you can easily install XmlStarlet with this command line:
+            sudo apt-get install xmlstarlet
+
+        - Otherwise, go to the following url: http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html
+
+Vim-Magento generate automatically comments, you have to define the global variables below in your .|vimrc|:
+    let g:vimMagentoAuthor = "Michael Joseph <contact@michael-joseph.me>"
+    let g:vimMagentoCopyright = "Copyright 2016 Michael Joseph http://michael-joseph.me"
+    let g:vimMagentoLicense = "No License"
+
+    If you don't define g:license, the default license will be 'GPL 3.0 http://www.gnu.org/licenses/gpl-3.0.txt'
+
+To disable Vim-Magento plugin's signature add this line in your .|vimrc|:
+    let g:vimMagentoSignature=0
+
+COMMANDS
+========================================================================
+:Magento                                        *Magento*
+    This command opens the Magento prompt.
+
+    For each Vim instance, the first time you call |Magento| command 
+    you have to define the module to be created or updated:
+        - Pool name      : Type <l> for Local or <c> for Community
+        - Package name   : Type the module package name without special characters
+        - Extension name : Type the module extension name without special characters
+                        
+    Once module has been defined, two cases are possible:                    
+        1- The module exists, the prompt invites you to choose |actions|.
+        2- The module does not exist, the basic module is created.
+
+            Basic module's tree example:
+
+                app
+                ├── code
+                │   └── community
+                │       └── Mypackage
+                │           └── Myextension
+                │               ├── etc
+                │               │   └── config.xml
+                │               └── Helper
+                │                   └── Data.php
+                └── etc
+                    └── modules
+                        └── Mypackage_Myextension.xml
+
+ACTIONS                                         *actions*
+========================================================================
+
+The Magento prompt invites you to choose between these actions:
+
+    - Select / Create a module                  |MagentoCreateSelect|
+    - Block creation                            |MagentoBlockCreation|
+    - Front controller creation                 |MagentoFrontControllerCreation|
+    - Model creation                            |MagentoObserverCreation|
+    - Observer creation                         |MagentoObserverCreation|
+
+Select / Create a module                        *MagentoCreateSelect*
+------------------------------------------------------------------------
+    * Type <s>
+
+    This action enables you to select or create another module 
+    as if it was the first time you were calling |Magento| command.
+
+
+Block creation                                  *MagentoBlockCreation*
+------------------------------------------------------------------------
+   * Type <b>
+   * Define
+       - Block name: Type the block name without special characters.
+
+                     To create subfolders you can use <_> or </> in your block name. 
+                     Example: "Mysubfolder_Myblock" or "Mysubfolder/Myblock"
+
+Front controller creation                       *MagentoFrontControllerCreation*
+------------------------------------------------------------------------
+    * Type <c>
+    * Define
+        - Controller name: Type the controller name without special characters.
+                           To create 'Mypackage_Myextension_CustomController' class,
+                           please type only 'Custom'.
+                           If you leave this field empty 'Mypackage_Myextension_IndexController'
+                           class will be created automatically.
+        
+Model creation                                  *MagentoModelCreation*
+------------------------------------------------------------------------
+    * Type <e>
+    * Define
+       - Entity name: Type the entity name without special characters.
+                      This name will be the model class name.
+                      For example to create 'Mypackage_Myextension_Model_Mymodel' class,
+                      please type 'mymodel' or 'Mymodel'.
+                      To create subfolders you can use <_> or </> in your model name 
+                          - Example: 'Mysubfolder_Mymodel' or 'Mysubfolder/Mymodel'
+
+       - Table name : Type the table name without special characters.
+                      This name will be the database table name.
+
+                      In the config.xml file this corresponds to the table node:
+                      ...
+                       <entities>
+                           <mymodel>
+                               <table>my_table_name</table>
+                           </mymodel>
+                       </entities>
+                      ...
+
+Observer creation                               *MagentoObserverCreation*
+------------------------------------------------------------------------
+    * Type <o>
+    * Define
+        - Area name    : Type <g> for global, <f> for frontend or <a> for adminhtml. 
+                         This value defines the observer scope.
+        - Event name   : Type the event name to observe.
+        - Observer name: Type the observer name without special characters. 
+                         If you leave this field empty 'Mypackage_Myextension_Model_Observer' class 
+                         will be created automatically.
+        - Method name  : Type the method name without special characters. 
+                         This name will be the observer method name that will be fired on event.
+
