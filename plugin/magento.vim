@@ -1,23 +1,37 @@
-" File:          magento.vim
-" Author:        Michael Joseph
-" Website:       michael-joseph.me
-" Contact:	 vim@michael-joseph.me
-" Version:       0.1.3
+" File    : magento.vim
+" Author  : Michael Joseph
+" Website : michael-joseph.me
+" Contact : vim@michael-joseph.me
+" Version : 0.9.0
+" License : GNU Affero GPL v3.0
 
 "Include Magento abrevation
 let s:install_dir = expand("<sfile>:p:h")
-execute 'source /' . s:install_dir . '/ab.vim'
+
+let g:separator = '/'
+
+if has('win32')
+    let g:separator = '\\'
+endif
+
+execute 'source '. g:separator . s:install_dir . g:separator .'ab.vim'
 
 "declare Magento command
 if !exists(':Magento')
     command -nargs=0 Magento call MagentoMenu()
 endif
 
-let g:magento = 0
+let g:magento=0
 let action=""
 
 func! MagentoMenu()
-    if exists('g:package') && exists('g:name') 
+    if !exists('g:vimMagentoLicense')
+        let g:vimMagentoLicense="GPL 3.0 http://www.gnu.org/licenses/gpl-3.0.txt"
+    endif
+    if !exists('g:vimMagentoSignature')
+        let g:vimMagentoSignature=1
+    endif
+    if exists('g:vimMagentoPackage') && exists('g:vimMagentoName') 
         echom "[Magento VIM] Choose your Action"
         echom "Choose your Action"
         echom "s : select/create extension"
@@ -29,6 +43,8 @@ func! MagentoMenu()
         echom "su: create setup (this feature is coming soon)"
         let action = input('Action: ')
         if action == "s"
+            unlet g:vimMagentoPackage
+            unlet g:vimMagentoName
             call magento#CreateModule()
         endif
         if action == "b"

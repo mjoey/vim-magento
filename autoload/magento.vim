@@ -2,7 +2,8 @@
 " Author  : Michael Joseph
 " Website : michael-joseph.me
 " Contact : vim@michael-joseph.me
-" Version : 0.1.3
+" Version : 0.9.0
+" License : GNU GPL v3.0
 
 let s:install_dir = expand("<sfile>:p:h")
 
@@ -37,11 +38,17 @@ func! magento#CComment(fileType)
 endfunc
 
 func! magento#CReplace()
-    execute ":%s/{package}/".magento#escapeSlash(g:package)."_".g:name."/g"
-    execute ":%s/{category}/".magento#escapeSlash(g:package)."/g"
-    execute ":%s/{author}/".magento#escapeSlash(g:author)."/g"
-    execute ":%s/{copyright}/".magento#escapeSlash(g:copyright)."/g"
-    execute ":%s/{license}/".magento#escapeSlash(g:license)."/g"
+    execute ":%s/{package}/".magento#escapeSlash(g:vimMagentoPackage)."_".g:vimMagentoName."/g"
+    execute ":%s/{category}/".magento#escapeSlash(g:vimMagentoPackage)."/g"
+    execute ":%s/{author}/".magento#escapeSlash(g:vimMagentoAuthor)."/g"
+    execute ":%s/{copyright}/".magento#escapeSlash(g:vimMagentoCopyright)."/g"
+    if g:vimMagentoSignature==1
+       "set register x
+       let @x = " * Generate with vim-magento plugin https:\/\/github.com\/mjoey\/vim-magento"
+       "paste register x
+       execute ':pu x'
+    endif
+    execute ":%s/{license}/".magento#escapeSlash(g:vimMagentoLicense)."/g"
 endfunc
 
 func! magento#AddNode(file,path,node,value,origfile)
@@ -64,13 +71,9 @@ endfunc
 
 "Create a module
 func! magento#CreateModule()
-    if !exists('g:package') || !exists('g:name')
+    if !exists('g:vimMagentoPackage') || !exists('g:vimMagentoName')
         echom "Wich module do you want to update or create ?"
-        let g:separator = '/'
-        if has('win32')
-            let g:separator = '\\'
-        endif
-
+        
         "pool
         let poolFlag = 0
         while poolFlag==0
@@ -86,20 +89,20 @@ func! magento#CreateModule()
         echom " "
 
         "package
-        let g:package=""
-        while g:package == ""
-            let g:package = input('Package name: ')
-            let g:lpackage = tolower(g:package)
-            let g:package = magento#ucfirst(g:package)
+        let g:vimMagentoPackage=""
+        while g:vimMagentoPackage == ""
+            let g:vimMagentoPackage = input('Package name: ')
+            let g:vimMagentoLPackage = tolower(g:vimMagentoPackage)
+            let g:vimMagentoPackage = magento#ucfirst(g:vimMagentoPackage)
             echom " "
         endwhile
 
         "extension
-        let g:name=""
-        while g:name == ""
-            let g:name = input('Extension name: ')
-            let g:lname = tolower(g:name)
-            let g:name = magento#ucfirst(g:name)
+        let g:vimMagentoName=""
+        while g:vimMagentoName == ""
+            let g:vimMagentoName = input('Extension name: ')
+            let g:vimMagentoLName = tolower(g:vimMagentoName)
+            let g:vimMagentoName = magento#ucfirst(g:vimMagentoName)
             let g:ccom = expand(":Ccom")
             echom " "
         endwhile
@@ -107,42 +110,42 @@ func! magento#CreateModule()
         "details
         echom " "
         echom "[Pool Name]: ".pool
-        echom "[Package Name]: ".g:package
-        echom "[Extension Name]: ".g:name
-        let g:path = "app".g:separator."code".g:separator.pool.g:separator.g:package
-        let g:declarationXml = "app".g:separator."etc".g:separator."modules".g:separator.g:package."_".g:name.".xml"
-        let g:configXml = g:path.g:separator.g:name.g:separator."etc".g:separator."config.xml"
+        echom "[Package Name]: ".g:vimMagentoPackage
+        echom "[Extension Name]: ".g:vimMagentoName
+        let g:path = "app".g:separator."code".g:separator.pool.g:separator.g:vimMagentoPackage
+        let g:declarationXml = "app".g:separator."etc".g:separator."modules".g:separator.g:vimMagentoPackage."_".g:vimMagentoName.".xml"
+        let g:configXml = g:path.g:separator.g:vimMagentoName.g:separator."etc".g:separator."config.xml"
         echom "Module Path: ".g:path 
 
-        if !filereadable(g:path.g:separator.g:name.g:separator."etc".g:separator."config.xml")
+        if !filereadable(g:path.g:separator.g:vimMagentoName.g:separator."etc".g:separator."config.xml")
             if !isdirectory("app".g:separator."etc".g:separator."modules")
                 call system("mkdir -p app".g:separator."etc".g:separator."modules")
             endif
 
             call system("touch ".g:declarationXml)
-            call magento#AddNode(g:declarationXml,"config/modules",g:package."_".g:name,"",s:install_dir."/magento/pattern/module.xml")
-            call magento#AddNode(g:declarationXml,"config/modules/".g:package."_".g:name,"active","true",g:declarationXml)
-            call magento#AddNode(g:declarationXml,"config/modules/".g:package."_".g:name,"codePool",pool,g:declarationXml)
+            call magento#AddNode(g:declarationXml,"config/modules",g:vimMagentoPackage."_".g:vimMagentoName,"",s:install_dir."/magento/pattern/module.xml")
+            call magento#AddNode(g:declarationXml,"config/modules/".g:vimMagentoPackage."_".g:vimMagentoName,"active","true",g:declarationXml)
+            call magento#AddNode(g:declarationXml,"config/modules/".g:vimMagentoPackage."_".g:vimMagentoName,"codePool",pool,g:declarationXml)
             execute ":split ".g:declarationXml
             call magento#CComment("xml")
 
-            call system("mkdir -p ".g:path.g:separator.g:name.g:separator."etc")
-            call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block")
-            call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Helper")
+            call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."etc")
+            call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Block")
+            call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Helper")
 
             "create config xml
             call system("touch ".g:configXml)
-            call magento#AddNode(g:configXml,"config/modules",g:package."_".g:name,"",s:install_dir."/magento/pattern/config.xml")
-            call magento#AddNode(g:configXml,"config/modules/".g:package."_".g:name,"version","1.0.0",g:configXml)
+            call magento#AddNode(g:configXml,"config/modules",g:vimMagentoPackage."_".g:vimMagentoName,"",s:install_dir."/magento/pattern/config.xml")
+            call magento#AddNode(g:configXml,"config/modules/".g:vimMagentoPackage."_".g:vimMagentoName,"version","1.0.0",g:configXml)
             call magento#AddNode(g:configXml,"config/global","helpers","",g:configXml)
-            call magento#AddNode(g:configXml,"config/global/helpers",g:lpackage."_".g:lname,"",g:configXml)
-            call magento#AddNode(g:configXml,"config/global/helpers/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Helper",g:configXml)
+            call magento#AddNode(g:configXml,"config/global/helpers",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+            call magento#AddNode(g:configXml,"config/global/helpers/".g:vimMagentoLPackage."_".g:vimMagentoLName,"class",g:vimMagentoPackage."_".g:vimMagentoName."_Helper",g:configXml)
             execute ":split ".g:configXml
             call magento#CComment("xml")
 
             "create helper file
-            call system("touch ".g:path.g:separator.g:name."/Helper".g:separator."Data.php")
-            execute ":split ".g:path.g:separator.g:name."/Helper".g:separator."Data.php"
+            call system("touch ".g:path.g:separator.g:vimMagentoName."/Helper".g:separator."Data.php")
+            execute ":split ".g:path.g:separator.g:vimMagentoName."/Helper".g:separator."Data.php"
             execute ":r ".s:install_dir."/magento/pattern/Helper.php"
             call magento#deleteFirstLine()
             execute "/<?php"
@@ -161,13 +164,13 @@ func! magento#CreateController()
         let controllerName = "Index"
     endif
 
-    if !isdirectory(g:path.g:separator.g:name.g:separator."controllers")
-        call system("mkdir -p ".g:path.g:separator.g:name.g:separator."controllers")
+    if !isdirectory(g:path.g:separator.g:vimMagentoName.g:separator."controllers")
+        call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."controllers")
     endif
-    call system("touch ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php")
-    execute ":split ".g:path.g:separator.g:name.g:separator.'controllers'.g:separator.controllerName."Controller.php"
+    call system("touch ".g:path.g:separator.g:vimMagentoName.g:separator.'controllers'.g:separator.controllerName."Controller.php")
+    execute ":split ".g:path.g:separator.g:vimMagentoName.g:separator.'controllers'.g:separator.controllerName."Controller.php"
     execute ":r ".s:install_dir."/magento/pattern/Controller.php"
-    execute ":%s/{package}_{modulename}_{controllername}/".g:package."_".g:name."_".controllerName."/g"
+    execute ":%s/{package}_{modulename}_{controllername}/".g:vimMagentoPackage."_".g:vimMagentoName."_".controllerName."/g"
     call magento#deleteFirstLine()
     call magento#CComment('php')
     call magento#deleteFirstLine()
@@ -184,11 +187,11 @@ func! magento#CreateController()
     "verify if routers node exists
     if routersNode==0
         call magento#AddNode(g:configXml,"config/frontend","routers","",g:configXml)
-        call magento#AddNode(g:configXml,"config/frontend/routers",g:lpackage."_".g:lname,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"use","standard",g:configXml)
-        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname,"args","",g:configXml)
-        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","module",g:package."_".g:name,g:configXml)
-        call magento#AddNode(g:configXml,"config/frontend/routers/".g:lpackage."_".g:lname."/args","frontName",g:lname,g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName,"use","standard",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName,"args","",g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName."/args","module",g:vimMagentoPackage."_".g:vimMagentoName,g:configXml)
+        call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName."/args","frontName",g:vimMagentoLName,g:configXml)
     endif
     execute ":w"
 endfunc
@@ -197,20 +200,20 @@ endfunc
 func! magento#CreateBlock()
     let block = magento#replaceSlashByUnderscore(input('Block Name: '))
     let block = magento#ucAfterUnderscore(block)
-    if !isdirectory(g:path.g:separator.g:name.g:separator."Block")
-        call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block")
+    if !isdirectory(g:path.g:separator.g:vimMagentoName.g:separator."Block")
+        call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Block")
     endif
     "create subfolder
     let blockList = split(block,'_')
     "create block sub folder
     if(len(blockList)>1)
         call remove(blockList,len(blockList)-1)
-        if !isdirectory(g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
-            call system("mkdir -p ".g:path.g:separator.g:name.g:separator."Block".g:separator.join(blockList,g:separator))
+        if !isdirectory(g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator.join(blockList,g:separator))
+            call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator.join(blockList,g:separator))
         endif
     endif
-    call system("touch ".g:path.g:separator.g:name.g:separator."Block".g:separator.block.".php")
-    execute ":split ".g:path.g:separator.g:name.g:separator."Block".g:separator.join(split(block,'_'),g:separator).".php"
+    call system("touch ".g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator.block.".php")
+    execute ":split ".g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator.join(split(block,'_'),g:separator).".php"
     execute ":r ".s:install_dir."/magento/pattern/Block.php"
     execute ":%s/{block}/".block."/g"
     call magento#deleteFirstLine()
@@ -223,8 +226,8 @@ func! magento#CreateBlock()
     let blocksNode = magento#ExistingNode(g:configXml,"config/global/blocks")
     if blocksNode==0
         call magento#AddNode(g:configXml,"config/global","blocks","",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/blocks",g:lpackage."_".g:lname,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/blocks/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Block",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks/".g:vimMagentoLPackage."_".g:vimMagentoLName,"class",g:vimMagentoPackage."_".g:vimMagentoName."_Block",g:configXml)
     endif
     execute ":w"
 endfunc
@@ -235,7 +238,7 @@ func! magento#CreateEntity()
     let entity = magento#ucAfterUnderscore(entity)
     let lentity = tolower(entity)
     let table = tolower(input('Table Name: '))
-    let modelPath = g:path.g:separator.g:name.g:separator."Model"
+    let modelPath = g:path.g:separator.g:vimMagentoName.g:separator."Model"
     "create model folder
     if !isdirectory(modelPath)
         call system("mkdir -p ".modelPath)
@@ -261,8 +264,8 @@ func! magento#CreateEntity()
     execute ":split ".modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator).g:separator."Collection.php"
     execute ":".line("$")
     execute ":r ".s:install_dir."/magento/pattern/ResourceCollection.php"
-    execute ":%s/{modulename}/".g:package."_".g:name."/g"
-    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{modulename}/".g:vimMagentoPackage."_".g:vimMagentoName."/g"
+    execute ":%s/{lmodulename}/".g:vimMagentoLPackage."_".g:vimMagentoLName."/g"
     execute ":%s/{lentity}/".lentity."/g"
     execute ":%s/{entity}/".entity."/g"
     call magento#deleteFirstLine()
@@ -273,8 +276,8 @@ func! magento#CreateEntity()
     execute ":split ".modelPath.g:separator."Resource".g:separator.join(split(entity,'_'),g:separator).".php"
     execute ":".line("$")
     execute ":r ".s:install_dir."/magento/pattern/ResourceModel.php"
-    execute ":%s/{modulename}/".g:package."_".g:name."/g"
-    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{modulename}/".g:vimMagentoPackage."_".g:vimMagentoName."/g"
+    execute ":%s/{lmodulename}/".g:vimMagentoLPackage."_".g:vimMagentoLName."/g"
     execute ":%s/{lentity}/".lentity."/g"
     execute ":%s/{entity}/".entity."/g"
     call magento#deleteFirstLine()
@@ -285,8 +288,8 @@ func! magento#CreateEntity()
     execute ":split ".modelPath.g:separator.join(split(entity,'_'),g:separator).".php"
     execute ":".line("$")
     execute ":r ".s:install_dir."/magento/pattern/Model.php"
-    execute ":%s/{modulename}/".g:package."_".g:name."/g"
-    execute ":%s/{lmodulename}/".g:lpackage."_".g:lname."/g"
+    execute ":%s/{modulename}/".g:vimMagentoPackage."_".g:vimMagentoName."/g"
+    execute ":%s/{lmodulename}/".g:vimMagentoLPackage."_".g:vimMagentoLName."/g"
     execute ":%s/{lentity}/".lentity."/g"
     execute ":%s/{entity}/".entity."/g"
     call magento#deleteFirstLine()
@@ -299,18 +302,18 @@ func! magento#CreateEntity()
     let modelsNode = magento#ExistingNode(g:configXml,"config/global/models")
     if modelsNode==0
         call magento#AddNode(g:configXml,"config/global","models","",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Model",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"resourceModel",g:lpackage."_".g:lname."_resource",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname."_resource","",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource","class",g:package."_".g:name."_Model_Resource",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource","entities","",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities",lentity,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities/".lentity,"table",table,g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName,"class",g:vimMagentoPackage."_".g:vimMagentoName."_Model",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName,"resourceModel",g:vimMagentoLPackage."_".g:vimMagentoLName."_resource",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:vimMagentoLPackage."_".g:vimMagentoLName."_resource","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource","class",g:vimMagentoPackage."_".g:vimMagentoName."_Model_Resource",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource","entities","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource/entities",lentity,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource/entities/".lentity,"table",table,g:configXml)
         execute ":w"
     else
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities",lentity,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname."_resource/entities/".lentity,"table",table,g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource/entities",lentity,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName."_resource/entities/".lentity,"table",table,g:configXml)
         execute ":w"
     endif
 endfunc
@@ -343,7 +346,7 @@ func! magento#CreateObserver()
     let observer = magento#replaceSlashByUnderscore(input('Observer name: '))
     let observer = magento#ucAfterUnderscore(observer)
     let observerList = split(observer,'_')
-    let modelPath = g:path.g:separator.g:name.g:separator."Model"
+    let modelPath = g:path.g:separator.g:vimMagentoName.g:separator."Model"
 
     "define method name
     let method = ""
@@ -367,13 +370,13 @@ func! magento#CreateObserver()
     endif
 
     let observer = tolower(observer)
-    execute ":split ".g:path.g:separator.g:name.g:separator."etc".g:separator."config.xml"
+    execute ":split ".g:path.g:separator.g:vimMagentoName.g:separator."etc".g:separator."config.xml"
     "verify if models node exists
     let modelsNode = magento#ExistingNode(g:configXml,"config/global/models")
     if modelsNode==0
         call magento#AddNode(g:configXml,"config/global","models","",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models",g:lpackage."_".g:lname,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/global/models/".g:lpackage."_".g:lname,"class",g:package."_".g:name."_Model",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/models/".g:vimMagentoLPackage."_".g:vimMagentoLName,"class",g:vimMagentoPackage."_".g:vimMagentoName."_Model",g:configXml)
     endif
     "verify if events node exists
     let eventsNode = magento#ExistingNode(g:configXml,"config/".area."/events")
@@ -386,16 +389,16 @@ func! magento#CreateObserver()
         call magento#AddNode(g:configXml,"config/".area,"events","",g:configXml)
         call magento#AddNode(g:configXml,"config/".area."/events",event,"",g:configXml)
         call magento#AddNode(g:configXml,"config/".area."/events/".event,"observers","",g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:lpackage."_".g:lname."_".observer,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"class",g:lpackage."_".g:lname."/".tolower(observer),g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"method",method,g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"class",g:vimMagentoLPackage."_".g:vimMagentoLName."/".tolower(observer),g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"method",method,g:configXml)
         execute ":w"
     else
         call magento#AddNode(g:configXml,"config/".area."/events",event,"",g:configXml)
         call magento#AddNode(g:configXml,"config/".area."/events/".event,"observers","",g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:lpackage."_".g:lname."_".observer,"",g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"class",g:lpackage."_".g:lname."/".tolower(observer),g:configXml)
-        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:lpackage."_".g:lname."_".observer,"method",method,g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers",g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"class",g:vimMagentoLPackage."_".g:vimMagentoLName."/".tolower(observer),g:configXml)
+        call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"method",method,g:configXml)
         execute ":w"
     endif
 endfunc
