@@ -1,5 +1,5 @@
 Author : Michael Joseph <http://michael-joseph.me/><br>
-Version : 0.9.0<br>
+Version : 0.9.0 beta<br>
 License : GPL 3.0
 INTRODUCTION
 ========================================================================
