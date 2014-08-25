@@ -3,7 +3,8 @@ Version : 0.9.0 beta<br>
 License : GPL 3.0
 INTRODUCTION
 ========================================================================
-Vim-Magento is a Vim plugin that helps you build Magento modules.
+Vim-Magento is a Vim plugin that helps you build Magento modules.<br>
+*Warning: This plugin is dedicated to advanced Magento developers. Before you use it, Magento framework knowledge is necessary. This is a tool to increase productivity.*
 
 INSTALLATION
 ========================================================================
@@ -40,6 +41,7 @@ let g:vimMagentoSignature=0
 ```
 USAGE
 =============
+To run Vim-Magento, you must launch your vim instance at the Magento project root.<br>
 All actions begin with *Magento* command.
 
 THE COMMAND
