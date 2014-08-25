@@ -3,7 +3,7 @@
 " Website : michael-joseph.me
 " Contact : vim@michael-joseph.me
 " Version : 0.9.0
-" License : GNU Affero GPL v3.0
+" License : GNU GPL v3.0
 
 "define separator
 let g:separator = '/'
