@@ -52,7 +52,7 @@ func! magento#CReplace()
 endfunc
 
 func! magento#AddNode(file,path,node,value,origfile)
-    let @x=system("xmlstarlet ed -s /".a:path." -t elem -n ".a:node." -v '".a:value."' ".a:origfile." | xmlstarlet fo -s 4")
+    let @x=system(g:xmlstarletCmd . " ed -s /".a:path." -t elem -n ".a:node." -v '".a:value."' ".a:origfile." | ". g:xmlstarletCmd . " fo -s 4")
     call system("rm -rf ".a:file)
     execute ":split ".a:file
     execute ":pu x"
@@ -61,7 +61,7 @@ func! magento#AddNode(file,path,node,value,origfile)
 endfunc
 
 func! magento#ExistingNode(file,path)
-   let x=system("xmlstarlet sel -t -v 'count(".a:path.")' ". a:file)
+   let x=system(g:xmlstarletCmd . " sel -t -v 'count(".a:path.")' ". a:file)
    if (x==0)
        return 0
    else
