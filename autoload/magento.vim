@@ -77,13 +77,15 @@ func! magento#CreateModule()
         "pool
         let poolFlag = 0
         while poolFlag==0
-            let pool = input('Pool Name? Local (l) or Community (c): ')
+            let pool = input('Pool Name? For local type <l> or community type <c> - to abort type "exit": ')
             if pool == "l"
                 let pool = "local"
                 let poolFlag = 1
             elseif pool == "c"
                 let pool = "community"
                 let poolFlag = 1
+            elseif pool == "exit"
+                return
             endif
         endwhile
         echom " "
