@@ -1,10 +1,13 @@
-Author : Michael Joseph <http://michael-joseph.me/><br>
+Author : Michael Joseph <http://michael-joseph.me/en/><br>
 Version : 0.9.0 beta<br>
 License : GPL 3.0
 INTRODUCTION
 ========================================================================
 Vim-Magento is a Vim plugin that helps you build Magento modules.<br>
-*Warning: This plugin is dedicated to advanced Magento developers. Before you use it, Magento framework knowledge is necessary. This is a tool to increase productivity.*
+
+Vim-Magento has been tested successfully on Debian Wheezy and Mac OSX 10.6.8. It does not support Microsoft Windows OS yet.<br>
+
+**Warning: This plugin is dedicated to advanced Magento developers. Before you use it, Magento framework knowledge is necessary. This is a tool to increase productivity.**
 
 INSTALLATION
 ========================================================================
