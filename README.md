@@ -24,6 +24,7 @@ XmlStarlet installation
 ```
 sudo apt-get install xmlstarlet
 ```
+- Under Mac OSX follow this short tutorial to compile it: http://michael-joseph.me/en/linux-en/how-to-install-xmlstarlet-on-mac-osx/
 - Otherwise, go to the following url to install it: http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html<br>
 
 Global variables
