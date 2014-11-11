@@ -132,7 +132,6 @@ func! magento#CreateModule()
             call magento#CComment("xml")
 
             call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."etc")
-            call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Block")
             call system("mkdir -p ".g:path.g:separator.g:vimMagentoName.g:separator."Helper")
 
             "create config xml
