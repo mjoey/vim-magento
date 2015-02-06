@@ -1,6 +1,6 @@
 <?php
 
-class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_Adminhtml_Controller_Action
+class {package}_{modulename}_Adminhtml_{modulename}_{controllername}Controller extends Mage_Adminhtml_Controller_Action
 {
     /**
      * Pre dispatch
@@ -10,7 +10,7 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
     public function preDispatch()
     {
         // Title
-        $this->_title($this->__('Manage {entity}'));
+        $this->_title($this->__('Manage {entityName}'));
 
         return parent::preDispatch();
     }
@@ -39,7 +39,7 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
         $this->_title($this->__('Grid'));
 
         // Content
-        $grid = $this->getLayout()->createBlock('{lmodulename}/adminhtml_{lentity}', 'grid');
+        $grid = $this->getLayout()->createBlock('{lpackage}_{blockmodulename}/adminhtml_{lentity}', 'grid');
         $this->_addContent($grid);
 
         // Render
@@ -64,9 +64,9 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
      protected function _init{entity}()
      {
         ${entity}Id  = (int) $this->getRequest()->getParam('id');
-        ${entity}    = Mage::getModel('{lmodulename}/{lentity}')->load(${entity}Id);
+        ${entity}    = Mage::getModel('{lmodulename}/{lentity}')->load(${lentity}Id);
 
-        Mage::register('current_{lentity}', ${entity});
+        Mage::register('current_{lentity}', ${lentity});
                 
         return ${entity};
       }
@@ -83,9 +83,9 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
         
         // Title
         if (${lentity}->getId()) {
-                $this->_title($this->__('Edit {entity}:').${lentity}->getName());
+                $this->_title($this->__('Edit {entityName}:').${lentity}->getName());
         } else {
-                $this->_title($this->__('New {entity}'));
+                $this->_title($this->__('New {entityName}'));
         }
                 
         // Render
@@ -114,7 +114,7 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
         }
 
         // Success
-        $this->_getSession()->addSuccess($this->__('{entity} saved successfully.'));
+        $this->_getSession()->addSuccess($this->__('{entityName} saved successfully.'));
         $this->_redirect('*/*/index');
     }
 
@@ -131,7 +131,7 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
 
         // No object?
         if (!$object->getId()) {
-            $this->_getSession()->addError($this->__('{entity} not found.'));
+            $this->_getSession()->addError($this->__('{entityName} not found.'));
             $this->_redirectReferer();
             return;
         }
@@ -146,7 +146,7 @@ class {package}_{modulename}_Adminhtml_{controllername}Controller extends Mage_A
         }
 
         // Success
-        $this->_getSession()->addSuccess($this->__('{entity} deleted successfully.'));
+        $this->_getSession()->addSuccess($this->__('{entityName} deleted successfully.'));
         $this->_redirect('*/*/index');
     }
 

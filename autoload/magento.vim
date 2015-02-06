@@ -60,6 +60,15 @@ func! magento#AddNode(file,path,node,value,origfile)
     execute ":wq"
 endfunc
 
+func! magento#AddNodeAttribute(file,path,attr,value,origfile)
+    let @x=system(g:xmlstarletCmd . " ed --insert /".a:path." --type attr -n ".a:attr." -v '".a:value."' ".a:origfile." | ". g:xmlstarletCmd . " fo -s 4")
+    call system("rm -rf ".a:file)
+    execute ":split ".a:file
+    execute ":pu x"
+    call magento#deleteFirstLine()
+    execute ":wq"
+endfunc
+
 func! magento#ExistingNode(file,path)
    let x=system(g:xmlstarletCmd . " sel -t -v 'count(".a:path.")' ". a:file)
    if (x==0)
@@ -402,4 +411,91 @@ func! magento#CreateObserver()
         call magento#AddNode(g:configXml,"config/".area."/events/".event."/observers/".g:vimMagentoLPackage."_".g:vimMagentoLName."_".observer,"method",method,g:configXml)
         execute ":w"
     endif
+endfunc
+
+func! magento#CreateGrid()
+    let entityPath = input('Which entity is affect? Example:"catalog/product"')
+    let entityList = split(entityPath,'/')
+    let modulenameList = split(entityPath,'/')
+    let lentity = get(entityList,1)
+    let modulename = get(modulenameList,0)
+    let entity = magento#ucfirst(lentity)
+
+    let entityName = input('What is the entity name for the dashboard?')
+
+    let controller = input('What will be the controller name prefix? Example:"Product" for ProductController.php"')
+    let g:adminhtmlXml = g:path.g:separator.g:vimMagentoName.g:separator."etc".g:separator."adminhtml.xml"
+    "create adminhtml xml
+    call system("touch ".g:adminhtmlXml)
+    execute ":split ".g:adminhtmlXml
+    execute ":r ".s:install_dir."/magento/pattern/adminhtml.xml"
+    execute ":%s/{lmodulename}/".g:vimMagentoLPackage."_".g:vimMagentoLName."/g"
+    execute ":%s/{name}/".g:vimMagentoName."/g"
+    execute ":%s/{lname}/".g:vimMagentoLName."/g"
+    execute ":%s/{controllername}/".tolower(controller)."/g"
+    execute ":w"
+
+    let controllerFolderPath = g:path.g:separator.g:vimMagentoName.g:separator."controllers".g:separator."Adminhtml".g:separator.g:vimMagentoName
+    let controllerPath = controllerFolderPath.g:separator.controller.'Controller.php'
+    call system("mkdir -p ".controllerFolderPath)
+    call system("touch ".controllerPath)
+    execute ":split ".controllerPath
+    execute ":r ".s:install_dir."/magento/pattern/AdminController.php"
+    execute ":%s/{modulename}/".g:vimMagentoName."/g"
+    execute ":%s/{package}/".g:vimMagentoPackage."/g"
+    execute ":%s/{lpackage}/".g:vimMagentoLPackage."/g"
+    execute ":%s/{lmodulename}/".modulename."/g"
+    execute ":%s/{blockmodulename}/".g:vimMagentoLName."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    execute ":%s/{entityName}/".entityName."/g"
+    execute ":%s/{controllername}/".controller."/g"
+    execute ":w"
+
+    let gridFolderPath = g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator."Adminhtml".g:separator.entity
+    let gridPath = gridFolderPath.g:separator.'Grid.php'
+    call system("mkdir -p ".gridFolderPath)
+    call system("touch ".gridPath)
+    execute ":split ".gridPath
+    execute ":r ".s:install_dir."/magento/pattern/Grid.php"
+    execute ":%s/{modulename}/".g:vimMagentoPackage."_".g:vimMagentoName."/g"
+    execute ":%s/{lmodulename}/".modulename."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    execute ":w"
+
+
+    let gridContFolderPath = g:path.g:separator.g:vimMagentoName.g:separator."Block".g:separator."Adminhtml"
+    let gridContPath = gridContFolderPath.g:separator.entity.'.php'
+    call system("mkdir -p ".gridContFolderPath)
+    call system("touch ".gridContPath)
+    execute ":split ".gridContPath
+    execute ":r ".s:install_dir."/magento/pattern/GridContainer.php"
+    execute ":%s/{modulename}/".g:vimMagentoPackage."_".g:vimMagentoName."/g"
+    execute ":%s/{lmodulename}/".g:vimMagentoLPackage."_".g:vimMagentoLName."/g"
+    execute ":%s/{lentity}/".lentity."/g"
+    execute ":%s/{entity}/".entity."/g"
+    execute ":w"
+
+    "verify if blocks node exists
+    execute ":bd ".g:configXml
+    let blocksNode = magento#ExistingNode(g:configXml,"config/global/blocks")
+    if blocksNode==0
+        call magento#AddNode(g:configXml,"config/global","blocks","",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks",g:vimMagentoLPackage."_".g:vimMagentoLName,"",g:configXml)
+        call magento#AddNode(g:configXml,"config/global/blocks/".g:vimMagentoLPackage."_".g:vimMagentoLName,"class",g:vimMagentoPackage."_".g:vimMagentoName."_Block",g:configXml)
+    endif
+
+endfunc
+
+func! magento#CreateAdminRouter()
+    execute ":bd ".g:configXml
+    call magento#AddNode(g:configXml,"config","admin","",g:configXml)
+    call magento#AddNode(g:configXml,"config/admin","routers","",g:configXml)
+    call magento#AddNode(g:configXml,"config/admin/routers","adminhtml","",g:configXml)
+    call magento#AddNode(g:configXml,"config/admin/routers/adminhtml","args","",g:configXml)
+    call magento#AddNode(g:configXml,"config/admin/routers/adminhtml/args","modules","",g:configXml)
+    call magento#AddNode(g:configXml,"config/admin/routers/adminhtml/args/modules",g:vimMagentoLPackage."_".g:vimMagentoLName,g:vimMagentoPackage."_".g:vimMagentoName."_Adminhtml",g:configXml)
+    call magento#AddNodeAttribute(g:configXml,"config/admin/routers/adminhtml/args/modules/".g:vimMagentoLPackage."_".g:vimMagentoLName,"after","Mage_Adminhtml",g:configXml)
+    execute ":split ".g:configXml
 endfunc

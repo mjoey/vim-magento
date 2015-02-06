@@ -50,7 +50,7 @@ class {modulename}_Block_Adminhtml_{entity}_Grid extends Mage_Adminhtml_Block_Wi
     public function getRowUrl($row)
     {
         return $this->getUrl('*/*/edit', array(
-                '{entity}'=>$this->getRequest()->getParam('{entity}'),
+                '{lentity}'=>$this->getRequest()->getParam('{lentity}'),
                 'id'=>$row->getId())
         );
     }

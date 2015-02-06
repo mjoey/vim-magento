@@ -14,4 +14,6 @@ ab log$ Mage::log();<ESC>1ba<ESC>
 ab dat$ Mage::app()->getLocale()->date()->toString('HH:mm')
 "Store configuration - core_config_data_table
 ab sconf$ Mage::getStoreConfig();<ESC>1ba<ESC>
+"handles dump
+ab hd$ Zend_Debug::dump(Mage::app()->getLayout()->getUpdate()->getHandles());
 
