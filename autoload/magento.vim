@@ -185,7 +185,6 @@ func! magento#CreateController()
     call magento#CComment('php')
     call magento#deleteFirstLine()
     execute ":w"
-    execute ":split ".g:configXml
 
     "verify if frontend node exists
     let frontendNode = magento#ExistingNode(g:configXml,"config/frontend")
@@ -203,7 +202,6 @@ func! magento#CreateController()
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName."/args","module",g:vimMagentoPackage."_".g:vimMagentoName,g:configXml)
         call magento#AddNode(g:configXml,"config/frontend/routers/".g:vimMagentoLPackage."_".g:vimMagentoLName."/args","frontName",g:vimMagentoLName,g:configXml)
     endif
-    execute ":w"
 endfunc
 
 "Create a block
